@@ -1,4 +1,10 @@
-// huffcode.hpp  UNFINISHED
+/*
+	huffcode.hpp
+	Dustin L. Dodson
+	CS 411 - Assignment 6
+	24 Nov, 2017
+*/
+
 // Glenn G. Chappell
 // 29 Nov 2015
 //
@@ -14,31 +20,26 @@
 #define FILE_HUFFCODE_H_INCLUDED
 
 #include <string>
+using std::string;
+
 #include <unordered_map>
+using std::unordered_map;
 
 // Class HuffCode
 // Encoding & decoding using a Huffman code
 class HuffCode {
+	public:
+		// Compiler-generated default ctor, copy ctor, copy =, dctor used
 
-// ***** HuffCode: ctors, dctor, op= *****
-public:
+		void setWeights(const unordered_map<char, int> & theweights);
 
-    // Compiler-generated default ctor, copy ctor, copy =, dctor used
+		string encode(const string & text) const;
 
-// ***** HuffCode: general public functions *****
-public:
+		string decode(const string & codestr) const;
 
-    void setWeights(const std::unordered_map<char, int> & theweights);
-
-    std::string encode(const std::string & text) const;
-
-    std::string decode(const std::string & codestr) const;
-
-// ***** HuffCode: data members *****
-private:
+	// ***** HuffCode: data members *****
+	private:
 
 };  // End class HuffCode
 
-
-#endif //#ifndef FILE_HUFFCODE_H_INCLUDED
-
+#endif //#ifndef FILE_HUFFCODE_CPP_INCLUDED
