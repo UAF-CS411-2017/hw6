@@ -1,6 +1,7 @@
 CPP=g++
 CPPFLAGS=--std=c++17
 
+.PHONY: build
 build:
 	read -p "Username: " USERNAME; \
 	mkdir "test/$$USERNAME" -p; \
@@ -13,5 +14,11 @@ build:
 clean:
 	rm -Rf test
 	clear
+
+.PHONY: solutions
+solutions:
+	read -p "Username: " USERNAME; \
+	mkdir "solutions/$$USERNAME" -p; \
+	cp huffcode.* solutions/$$USERNAME/;
 
 test: clean build	
