@@ -21,10 +21,6 @@
 
 #include "huffcode.hpp"  // for class HuffCode declaration
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
 #include <string>
 using std::string;
 
@@ -41,26 +37,22 @@ using std::priority_queue;
 #include <vector>
 using std::vector;
 
+#include <iterator>
+using std::begin;
+using std::end;
+
 bool HuffCode::Compare::operator() (const HuffCode::Node & a, const HuffCode::Node & b) {
 	return a.getWeight() > b.getWeight();
 }
 
 HuffCode::Node::Node(const char & ch, const int & weight): 
-	_left(NULL), _right(NULL), _char(ch), _code(0), _weight(weight) {}
+	_left(NULL), _right(NULL), _char(ch), _weight(weight) {}
 
-HuffCode::Node::Node(shared_ptr<Node> left, shared_ptr<Node> right): 
-	_left(left), _right(right), _char(0), _code(0), _weight(0) {}
+HuffCode::Node::Node(shared_ptr<Node> left, shared_ptr<Node> right, const int & weight): 
+	_left(left), _right(right), _char(0), _weight(weight) {}
 
 const int HuffCode::Node::getWeight() const {
-	auto weight = this->_weight;
-
-	if(this->_left)
-		weight += this->_left->getWeight();
-
-	if(this->_right)
-		weight += this->_right->getWeight();
-
-	return weight;
+	return this->_weight;
 }
 
 const shared_ptr<HuffCode::Node> & HuffCode::Node::getLeft() const {
@@ -86,35 +78,27 @@ void HuffCode::Node::traverse(unordered_map<char, string> & ledger, const string
 
 void HuffCode::setWeights(const unordered_map<char, int> & theWeights) {
 	this->_ledger = unordered_map<char, string>();
-	this->_reverseLedger = unordered_map<string, char>();
 	this->_tree = NULL;
 
 	priority_queue<HuffCode::Node, vector<HuffCode::Node>, Compare> minHeap;
 
-	for(auto i : theWeights) {
-		// cout << i.first << " " << i.second << endl;
+	for(auto i : theWeights)
 		minHeap.emplace(i.first, i.second);
-	}
 
 	while(minHeap.size() > 1) {
 		auto min1 = minHeap.top();
-		min1._code = '0';
 		minHeap.pop();
 
 		auto min2 = minHeap.top();
-		min2._code = '1';
 		minHeap.pop();
 
-		minHeap.emplace(make_shared<Node>(min1), make_shared<Node>(min2));
+		minHeap.emplace(make_shared<Node>(min1), make_shared<Node>(min2), min1._weight + min2._weight);
 	}
 
 	if(minHeap.size() > 0) {
 		string tempStr = "";
 		this->_tree = make_shared<Node>(minHeap.top());
 		this->_tree->traverse(this->_ledger, tempStr);
-
-		for(const auto & i : this->_ledger)
-			this->_reverseLedger[i.second] = i.first;
 	}
 }
 
@@ -124,12 +108,9 @@ string HuffCode::encode(const string & text) const {
 	for(const auto & c : text) {
 		auto temp = this->_ledger.find(c);
 
-		if(temp != std::end(this->_ledger))
+		if(temp != end(this->_ledger))
 			ret += temp->second;
 	}
-
-	// for(const auto i : this->_ledger)
-	// 	cout << i.first << " - " << i.second << endl;
 
 	return ret;
 }
@@ -138,9 +119,9 @@ string HuffCode::decode(const string & codeStr) const {
 	string ret = "";
 	shared_ptr<Node> currNode = this->_tree;
 
-	auto it = std::begin(codeStr);
+	auto it = begin(codeStr);
 
-	while(it != std::end(codeStr)) {
+	while(it != end(codeStr)) {
 		if(!currNode->_left && !currNode->_right) {
 			ret += currNode->_char;
 			currNode = this->_tree;
@@ -160,7 +141,6 @@ string HuffCode::decode(const string & codeStr) const {
 
 	if(currNode && currNode->_char)
 		ret += currNode->_char;
-
 
 	return ret;
 }

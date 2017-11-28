@@ -44,7 +44,7 @@ class HuffCode {
 	private:
 		struct Node {
 			Node(const char & ch, const int & weight);
-			Node(shared_ptr<Node> left, shared_ptr<Node> right);
+			Node(shared_ptr<Node> left, shared_ptr<Node> right, const int & weight);
 
 			const int getWeight() const;
 			const shared_ptr<Node> & getLeft() const;
@@ -53,7 +53,7 @@ class HuffCode {
 			void traverse(unordered_map<char, string> & ledger, const string code);
 
 			shared_ptr<Node> _left, _right;
-			char _char, _code;
+			char _char;
 			int _weight;
 		};
 
@@ -64,7 +64,6 @@ class HuffCode {
 
 		shared_ptr<Node> _tree;
 		unordered_map<char, string> _ledger;
-		unordered_map<string, char> _reverseLedger;
 
 };  // End class HuffCode
 
