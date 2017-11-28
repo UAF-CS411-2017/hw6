@@ -50,8 +50,10 @@ class HuffCode {
 			const shared_ptr<Node> & getLeft() const;
 			const shared_ptr<Node> & getRight() const;
 
+			void traverse(unordered_map<char, string> & ledger, const string code);
+
 			shared_ptr<Node> _left, _right;
-			char _char;
+			char _char, _code;
 			int _weight;
 		};
 
@@ -62,6 +64,7 @@ class HuffCode {
 
 		shared_ptr<Node> _tree;
 		unordered_map<char, string> _ledger;
+		unordered_map<string, char> _reverseLedger;
 
 };  // End class HuffCode
 
