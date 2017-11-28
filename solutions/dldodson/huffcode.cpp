@@ -33,6 +33,7 @@ using std::unordered_map;
 
 #include <memory>
 using std::shared_ptr;
+using std::make_shared;
 
 #include <queue>
 using std::priority_queue;
@@ -44,30 +45,59 @@ bool HuffCode::Compare::operator() (const HuffCode::Node & a, const HuffCode::No
 	return a._weight > b._weight;
 }
 
-HuffCode::Node::Node(): _left(NULL), _right(NULL), _char(NULL), _code(NULL), _weight(0) {}
+HuffCode::Node::Node(const char & ch, const int & weight): 
+	_left(NULL), _right(NULL), _char(ch), _weight(weight) {}
+
+HuffCode::Node::Node(shared_ptr<Node> left, shared_ptr<Node> right): 
+	_left(left), _right(right), _char(0), _weight(0) {}
+
+const int HuffCode::Node::getWeight() const {
+	auto weight = this->_weight;
+
+	if(this->_left)
+		weight += this->_left->getWeight();
+
+	if(this->_right)
+		weight += this->_right->getWeight();
+
+	return weight;
+}
+
+const shared_ptr<HuffCode::Node> & HuffCode::Node::getLeft() const {
+	return this->_left;
+}
+
+const shared_ptr<HuffCode::Node> & HuffCode::Node::getRight() const {
+	return this->_right;
+}
 
 void HuffCode::setWeights(const unordered_map<char, int> & theWeights) {
 	priority_queue<HuffCode::Node, vector<HuffCode::Node>, Compare> minHeap;
 
 	for(auto i : theWeights) {
-		HuffCode::Node node;
-		node._char = i.first;
-		node._weight = i.second;
+		HuffCode::Node node(i.first, i.second);
 		minHeap.push(node);
-		// cout << node._char << " " << node._weight << endl;
 	}
 
-	auto min = minHeap.top();
-	// minHeap.pop();
-	// cout << min._char << " " << min._weight << endl;
-}
+	while(minHeap.size() > 1) {
+		auto min1 = minHeap.top();
+		minHeap.pop();
 
+		auto min2 = minHeap.top();
+		minHeap.pop();
+
+		HuffCode::Node node(make_shared<Node>(min1), make_shared<Node>(min2));
+		minHeap.push(node);
+	}
+
+	if(minHeap.size() > 0)
+		this->_tree = make_shared<Node>(minHeap.top());
+}
 
 string HuffCode::encode(const string & text) const {
 	// WRITE THIS!!!
 	return "";  // DUMMY RETURN
 }
-
 
 string HuffCode::decode(const string & codeStr) const {
 	// WRITE THIS!!!

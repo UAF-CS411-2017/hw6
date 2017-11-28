@@ -43,10 +43,15 @@ class HuffCode {
 	// ***** HuffCode: data members *****
 	private:
 		struct Node {
-			Node();
+			Node(const char & ch, const int & weight);
+			Node(shared_ptr<Node> left, shared_ptr<Node> right);
+
+			const int getWeight() const;
+			const shared_ptr<Node> & getLeft() const;
+			const shared_ptr<Node> & getRight() const;
 
 			shared_ptr<Node> _left, _right;
-			char _char, _code;
+			char _char;
 			int _weight;
 		};
 
@@ -55,7 +60,7 @@ class HuffCode {
 			    bool operator() (const Node & a, const Node & b);
 		};
 
-		Node _tree;
+		shared_ptr<Node> _tree;
 		unordered_map<char, string> _ledger;
 
 };  // End class HuffCode
