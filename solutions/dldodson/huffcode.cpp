@@ -63,42 +63,62 @@ const shared_ptr<HuffCode::Node> & HuffCode::Node::getRight() const {
 	return this->_right;
 }
 
-void HuffCode::Node::traverse(unordered_map<char, string> & ledger, const string code) {
+void HuffCode::Node::traverse(unordered_map<char, string> & ledger, string & code) {
 	if(!this->_left && !this->_right) {
 		ledger[this->_char] = code;
 		return;
 	}
 
-	if(this->_left)
-		this->_left->traverse(ledger, (code + "0"));
+	if(this->_left) {
+		code.push_back('0');
+		this->_left->traverse(ledger, code);
+		code.pop_back();
+	}
 
-	if(this->_right)
-		this->_right->traverse(ledger, (code + "1"));
+	if(this->_right) {
+		code.push_back('1');
+		this->_right->traverse(ledger, code);
+		code.pop_back();
+	}
 }
 
 void HuffCode::setWeights(const unordered_map<char, int> & theWeights) {
 	this->_ledger = unordered_map<char, string>();
 	this->_tree = NULL;
 
-	priority_queue<HuffCode::Node, vector<HuffCode::Node>, Compare> minHeap;
+	if(theWeights.size() > 1) {
+		priority_queue<HuffCode::Node, vector<HuffCode::Node>, HuffCode::Compare> minHeap;
 
-	for(auto i : theWeights)
-		minHeap.emplace(i.first, i.second);
+		for(const auto & i : theWeights)
+			minHeap.emplace(i.first, i.second);
 
-	while(minHeap.size() > 1) {
-		auto min1 = minHeap.top();
-		minHeap.pop();
+		while(minHeap.size() > 1) {
+			auto min1 = minHeap.top();
+			minHeap.pop();
 
-		auto min2 = minHeap.top();
-		minHeap.pop();
+			auto min2 = minHeap.top();
+			minHeap.pop();
 
-		minHeap.emplace(make_shared<Node>(min1), make_shared<Node>(min2), min1._weight + min2._weight);
+			minHeap.emplace(make_shared<Node>(min1), make_shared<Node>(min2), min1._weight + min2._weight);
+		}
+
+		if(minHeap.size() > 0) {
+			string tempStr = "";
+			this->_tree = make_shared<Node>(minHeap.top());
+			this->_tree->traverse(this->_ledger, tempStr);
+		}
 	}
+	else if(theWeights.size() == 1) {
+		char theChar;
+		int theInt;
 
-	if(minHeap.size() > 0) {
-		string tempStr = "";
-		this->_tree = make_shared<Node>(minHeap.top());
-		this->_tree->traverse(this->_ledger, tempStr);
+		for(const auto & i : theWeights) {
+			theChar = i.first;
+			theInt = i.second;
+		}
+
+		this->_ledger[theChar] = "0";
+		this->_tree = make_shared<HuffCode::Node>(theChar, theInt);
 	}
 }
 
